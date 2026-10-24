@@ -1,0 +1,105 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChurnIQ | Dashboard</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+</head>
+<body>
+    <header class="navbar">
+        <a class="brand" href="/">ChurnIQ</a>
+        <nav>
+            <a class="active" href="/">Dashboard</a>
+            <a href="/predict">Predict Churn</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <p class="eyebrow">CUSTOMER ANALYTICS</p>
+            <h1>Customer Churn Dashboard</h1>
+            <p>Understand customer retention using machine learning.</p>
+            <a href="/predict" class="btn">Predict a Customer</a>
+        </section>
+
+        <section class="stats-grid">
+            <article class="stat-card">
+                <p>Total Customers</p>
+                <h2>{{ total }}</h2>
+            </article>
+
+            <article class="stat-card">
+                <p>Customers Who Churned</p>
+                <h2>{{ churn_count }}</h2>
+            </article>
+
+            <article class="stat-card">
+                <p>Churn Rate</p>
+                <h2>{{ churn_rate }}%</h2>
+            </article>
+
+            <article class="stat-card">
+                <p>Model Accuracy</p>
+                <h2>{{ metrics.accuracy }}%</h2>
+            </article>
+        </section>
+
+        <section class="panel">
+            <h2>Model Performance</h2>
+            <p class="muted">Scores measured on the held-out test dataset.</p>
+
+            {% for label, key in [
+                ('Accuracy', 'accuracy'),
+                ('Precision', 'precision'),
+                ('Recall', 'recall'),
+                ('F1 Score', 'f1')
+            ] %}
+                <div class="metric">
+                    <div class="metric-heading">
+                        <span>{{ label }}</span>
+                        <strong>{{ metrics[key] }}%</strong>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-fill" style="width: {{ metrics[key] }}%"></div>
+                    </div>
+                </div>
+            {% endfor %}
+        </section>
+
+        <section class="panel">
+            <h2>Confusion Matrix</h2>
+            <p class="muted">Rows represent actual classes; columns represent predictions.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Actual / Predicted</th>
+                            <th>No Churn</th>
+                            <th>Churn</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th>No Churn</th>
+                            <td>{{ matrix[0][0] }}</td>
+                            <td>{{ matrix[0][1] }}</td>
+                        </tr>
+                        <tr>
+                            <th>Churn</th>
+                            <td>{{ matrix[1][0] }}</td>
+                            <td>{{ matrix[1][1] }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer>ChurnIQ · Customer Churn Prediction System</footer>
+</body>
+</html>

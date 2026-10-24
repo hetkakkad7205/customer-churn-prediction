@@ -1,0 +1,95 @@
+
+{% extends "base.html" %}
+
+{% block title %}Model Evaluation | ChurnGuard{% endblock %}
+
+{% block content %}
+
+<section class="page-heading">
+    <p class="eyebrow">MACHINE LEARNING</p>
+    <h1>Model Evaluation</h1>
+    <p>Compare model performance on the test dataset.</p>
+</section>
+
+<section class="info-card">
+    <h2>Selected Model: {{ best_name }}</h2>
+    <p>Selected by highest test-set F1-score.</p>
+</section>
+
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Model</th>
+                <th>Accuracy</th>
+                <th>Precision</th>
+                <th>Recall</th>
+                <th>F1 Score</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for row in results %}
+            <tr>
+                <td>{{ row["Model"] }}</td>
+                <td>{{ row["Accuracy"] }}</td>
+                <td>{{ row["Precision"] }}</td>
+                <td>{{ row["Recall"] }}</td>
+                <td>{{ row["F1 Score"] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<section class="section-heading">
+    <h2>Confusion Matrices</h2>
+</section>
+
+<section class="chart-grid">
+
+    {% for name, matrix in matrices.items() %}
+    <article class="chart-card">
+        <h3>{{ name }}</h3>
+
+        <p class="muted">
+            Rows = actual class; columns = predicted class.
+        </p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Predicted Stay</th>
+                    <th>Predicted Churn</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <th>Actual Stay</th>
+                    <td>{{ matrix[0][0] }}</td>
+                    <td>{{ matrix[0][1] }}</td>
+                </tr>
+
+                <tr>
+                    <th>Actual Churn</th>
+                    <td>{{ matrix[1][0] }}</td>
+                    <td>{{ matrix[1][1] }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </article>
+    {% endfor %}
+
+</section>
+
+<section class="info-card">
+    <h2>Metric Explanation</h2>
+    <p><strong>Accuracy:</strong> Overall correctness.</p>
+    <p><strong>Precision:</strong> Reliability of churn predictions.</p>
+    <p><strong>Recall:</strong> Ability to detect actual churners.</p>
+    <p><strong>F1-score:</strong> Balance between precision and recall.</p>
+</section>
+
+{% endblock %}

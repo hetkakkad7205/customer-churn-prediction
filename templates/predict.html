@@ -1,0 +1,105 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predict Churn | ChurnIQ</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+</head>
+<body>
+    <header class="navbar">
+        <a class="brand" href="/">ChurnIQ</a>
+        <nav>
+            <a href="/">Dashboard</a>
+            <a class="active" href="/predict">Predict Churn</a>
+        </nav>
+    </header>
+
+    <main class="container narrow">
+        <section class="page-heading">
+            <p class="eyebrow">MACHINE LEARNING</p>
+            <h1>Predict Customer Churn</h1>
+            <p>Enter customer details to estimate their churn risk.</p>
+        </section>
+
+        {% if error %}
+            <div class="alert error">{{ error }}</div>
+        {% endif %}
+
+        {% if result is not none %}
+            <section class="result-card {{ 'danger' if result == 'Yes' else 'success' }}">
+                <p class="eyebrow">PREDICTION RESULT</p>
+
+                <h2>
+                    {% if result == 'Yes' %}
+                        Customer may churn
+                    {% else %}
+                        Customer may stay
+                    {% endif %}
+                </h2>
+
+                <p>
+                    Predicted class:
+                    <strong>{{ result }}</strong>
+                </p>
+
+                <p>
+                    Model-estimated churn probability:
+                    <strong>{{ probability }}%</strong>
+                </p>
+
+                <p class="muted">
+                    This is a model estimate, not a guarantee of customer behavior.
+                </p>
+
+                <a href="/predict" class="btn">Try Another Customer</a>
+            </section>
+        {% endif %}
+
+        <form method="POST" class="panel form-panel" id="predictionForm">
+            <div class="form-grid">
+                {% for field in fields %}
+                    <div class="form-group">
+                        <label for="{{ field.name }}">
+                            {{ field.label }}
+                        </label>
+
+                        {% if field.type == 'number' %}
+                            <input
+                                type="number"
+                                step="any"
+                                id="{{ field.name }}"
+                                name="{{ field.name }}"
+                                value="{{ field.default }}"
+                                required
+                            >
+                        {% else %}
+                            <select
+                                id="{{ field.name }}"
+                                name="{{ field.name }}"
+                                required
+                            >
+                                {% for option in field.options %}
+                                    <option value="{{ option }}"
+                                        {% if option == field.default %}selected{% endif %}>
+                                        {{ option }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <button type="submit" class="btn full-btn">
+                Predict Churn
+            </button>
+        </form>
+    </main>
+
+    <footer>ChurnIQ · Customer Churn Prediction System</footer>
+</body>
+</html>

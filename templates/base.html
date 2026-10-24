@@ -1,0 +1,42 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}ChurnGuard{% endblock %}</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<header class="navbar">
+    <a href="/" class="logo">◈ ChurnGuard</a>
+
+    <button id="menuToggle" class="menu-toggle"
+            aria-label="Toggle navigation">☰</button>
+
+    <nav id="navLinks">
+        <a href="/">Dashboard</a>
+        <a href="/analysis">EDA Analysis</a>
+        <a href="/evaluation">Evaluation</a>
+        <a href="/predict" class="nav-button">Predict Churn</a>
+    </nav>
+</header>
+
+<main class="container">
+    {% block content %}{% endblock %}
+</main>
+
+<footer>
+    Customer Churn Prediction System | Machine Learning Project
+</footer>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+</html>
