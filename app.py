@@ -94,3 +94,67 @@ except ValueError as exc:
     st.stop()
 
 model = Pipeline([
+    ("preprocessor", preprocessor),
+    ("classifier", RandomForestClassifier(
+        n_estimators=100, random_state=42, class_weight="balanced"
+    ))
+])
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+accuracy = accuracy_score(y_test, y_pred) * 100
+precision = precision_score(y_test, y_pred, zero_division=0) * 100
+recall = recall_score(y_test, y_pred, zero_division=0) * 100
+f1 = f1_score(y_test, y_pred, zero_division=0) * 100
+cm = confusion_matrix(y_test, y_pred, labels=[0, 1])
+
+total_customers = len(data)
+churn_count = int((y == 1).sum())
+churn_rate = churn_count / total_customers * 100
+
+dashboard, predict_tab, dataset_tab = st.tabs(["Dashboard & Evaluation", "Predict Churn", "Dataset"])
+
+with dashboard:
+    c1, c2, c3 = st.columns(3)
+    c1.metric("Total Customers", f"{total_customers:,}")
+    c2.metric("Customers Churned", f"{churn_count:,}")
+    c3.metric("Churn Rate", f"{churn_rate:.2f}%")
+
+    st.subheader("Model Evaluation")
+    m1, m2, m3, m4 = st.columns(4)
+    m1.metric("Accuracy", f"{accuracy:.2f}%")
+    m2.metric("Precision", f"{precision:.2f}%")
+    m3.metric("Recall", f"{recall:.2f}%")
+    m4.metric("F1 Score", f"{f1:.2f}%")
+
+    left, right = st.columns(2)
+    with left:
+        st.subheader("Churn Distribution")
+        counts = data["Churn"].map({0: "No Churn", 1: "Churn"}).value_counts()
+        st.bar_chart(counts)
+    with right:
+        st.subheader("Confusion Matrix")
+        fig, ax = plt.subplots()
+        disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=["No Churn", "Churn"])
+        disp.plot(ax=ax, colorbar=False)
+        st.pyplot(fig)
+        plt.close(fig)
+
+    st.caption("Metrics are calculated on a held-out 20% test set. Model results depend on the dataset and selected features.")
+
+with predict_tab:
+    st.subheader("Enter Customer Details")
+    st.write("Complete the fields below to estimate churn risk.")
+    with st.form("churn_prediction_form"):
+        row = {}
+        columns = st.columns(2)
+        for i, col in enumerate(X.columns):
+            with columns[i % 2]:
+                if col in numeric_cols:
+                    median = X[col].median()
+                    default = 0.0 if pd.isna(median) else float(median)
+                    row[col] = st.number_input(
+                        col.replace("_", " "),
+                        value=default,
+                        help=f"Numeric feature: {col}"
+                    )
