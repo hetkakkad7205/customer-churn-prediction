@@ -158,3 +158,33 @@ with predict_tab:
                         value=default,
                         help=f"Numeric feature: {col}"
                     )
+                else:
+                    options = sorted(X[col].dropna().astype(str).unique().tolist())
+                    if options:
+                        row[col] = st.selectbox(col.replace("_", " "), options)
+                    else:
+                        row[col] = st.text_input(col.replace("_", " "))
+        submitted = st.form_submit_button("Predict Churn", type="primary")
+
+    if submitted:
+        input_data = pd.DataFrame([row], columns=X.columns)
+        prediction = int(model.predict(input_data)[0])
+        probabilities = model.predict_proba(input_data)[0]
+        classes = list(model.named_steps["classifier"].classes_)
+        class_index = classes.index(1)
+        probability = float(probabilities[class_index]) * 100
+
+        if prediction == 1:
+            st.error("Prediction: This customer may churn.")
+        else:
+            st.success("Prediction: This customer is predicted to stay.")
+        st.metric("Estimated Churn Probability", f"{probability:.2f}%")
+        st.caption("This is a model estimate, not a guarantee of customer behavior.")
+
+with dataset_tab:
+    st.subheader("Cleaned Customer Dataset")
+    st.dataframe(data, use_container_width=True)
+    st.write("Dataset shape:", f"{data.shape[0]} rows × {data.shape[1]} columns")
+    st.subheader("Missing Values")
+    missing = data.isna().sum().sort_values(ascending=False)
+    st.dataframe(missing.rename("Missing Values").to_frame(), use_container_width=True)
